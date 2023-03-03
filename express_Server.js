@@ -38,22 +38,16 @@ app.get("/urls/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  res.send("OK"); // Respond with 'Ok' (we will replace this)
+  // const randomString = generateRandomString();  // implementing the
+  // res.send(randomString);                        // random generator
 });
-
-
-// app.get("/set", (req, res) => {
-//   const a = 1;
-//   res.send(`a = ${a}`);
-//  });                                           //used for testing 
-//                                                      variable scope
- 
-//  app.get("/fetch", (req, res) => {
-//   res.send(`a = ${a}`);
-//  });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+const generateRandomString = () => {
+  const generator = Math.random().toString(36).slice(2, 8);
+  return generator;
+} 
