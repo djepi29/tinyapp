@@ -59,6 +59,13 @@ app.get("/u/:id", (req, res) => { // redirect to existing/preset website on urlD
   res.redirect(longURL);// express redirecting does not require status code (304)
 });
 
+app.post("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  let updatedUrl = req.body.longURL;
+  urlDatabase[id] = updatedUrl;
+  res.redirect("/urls")
+})
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
