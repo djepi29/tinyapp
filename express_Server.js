@@ -38,9 +38,10 @@ app.get("/urls/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.send("OK"); // Respond with 'Ok' (we will replace this)
+  // res.send("OK"); // Respond with 'Ok' (we will replace this)
   // const randomString = generateRandomString();  // implementing the
   // res.send(randomString);                        // random generator
+  res.sendStatus(200) // responds statusCode
 });
 
 app.listen(PORT, () => {
