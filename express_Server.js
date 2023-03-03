@@ -22,21 +22,21 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.get("/urls", (req, res) => {
+app.get("/urls", (req, res) => { // implementing ejs to render data
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
+app.get("/urls/new", (req, res) => { // sending form template for POST request 
   res.render("urls_new");
 });
 
-app.get("/urls/:id", (req, res) => {
+app.get("/urls/:id", (req, res) => { // show longURL and generated id
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls", (req, res) => {
+app.post("/urls", (req, res) => { // receives longURL POST request form and redirects to path /urls/:id 
   console.log(req.body); // Log the POST request body to the console
   // res.send("OK"); // Respond with 'Ok' (we will replace this)
   const randomString = generateRandomString();  // implementing the
@@ -47,6 +47,12 @@ app.post("/urls", (req, res) => {
   }
   res.redirect(`/urls/${randomString}`)
 });
+
+app.get("/u/:id", (req, res) => { // redirect to existing/preset website on urlDatabase
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);// express redirecting does not require status code (304)
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
