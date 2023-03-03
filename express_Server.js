@@ -24,7 +24,7 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => { // implementing ejs to render data
   const templateVars = { urls: urlDatabase };
-  res.render("urls_index", templateVars);
+  res.render("urls_index", templateVars); // req now includes post form
 });
 
 app.get("/urls/new", (req, res) => { // sending form template for POST request 
@@ -47,6 +47,12 @@ app.post("/urls", (req, res) => { // receives longURL POST request form and redi
   }
   res.redirect(`/urls/${randomString}`)
 });
+
+app.post("/urls/:id/delete", (req, res) => {
+  const id = req.params.id;
+  delete urlDatabase[id];
+  res.redirect('/urls')
+})
 
 app.get("/u/:id", (req, res) => { // redirect to existing/preset website on urlDatabase
   const longURL = urlDatabase[req.params.id];
