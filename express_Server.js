@@ -5,7 +5,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
-const urlDatabase = {
+let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
@@ -39,9 +39,13 @@ app.get("/urls/:id", (req, res) => {
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
   // res.send("OK"); // Respond with 'Ok' (we will replace this)
-  // const randomString = generateRandomString();  // implementing the
+  const randomString = generateRandomString();  // implementing the
   // res.send(randomString);                        // random generator
-  res.sendStatus(200) // responds statusCode
+  // res.sendStatus(200) // responds statusCode
+  urlDatabase = {
+    [randomString] : req.body.longURL
+  }
+  res.redirect(`/urls/${randomString}`)
 });
 
 app.listen(PORT, () => {
