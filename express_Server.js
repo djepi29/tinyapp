@@ -1,8 +1,12 @@
 const express = require("express");
 const app = express();
+const morgan = require("morgan");
+const cookieParser = require('cookie-parser')
 const PORT = 8080; // default port 8080
 app.use(express.urlencoded({ extended: true }));
 
+app.use(cookieParser());
+app.use(morgan("dev"));
 app.set("view engine", "ejs");
 
 let urlDatabase = {
@@ -39,16 +43,16 @@ app.get("/urls/:id", (req, res) => { // show longURL and generated id
 app.post("/urls", (req, res) => { 
   // console.log(req.body); // to inspect the body/for alt. use morgan 
   const shortUrl = generateRandomString(); // defined below
-  urlDatabase[shortUrl] = req.body.longURL
+  urlDatabase[shortUrl] = req.body.longURL;
 
-  res.redirect(`/urls/${shortUrl}`)
+  res.redirect(`/urls/${shortUrl}`);
 });
 
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   delete urlDatabase[id];
-  res.redirect('/urls')
-})
+  res.redirect('/urls');
+});
 
 app.get("/u/:id", (req, res) => { // redirect to existing/preset website on urlDatabase
   const longURL = urlDatabase[req.params.id];
@@ -59,8 +63,14 @@ app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   let updatedUrl = req.body.longURL;
   urlDatabase[id] = updatedUrl;
-  res.redirect("/urls")
-})
+  res.redirect("/urls");
+});
+
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username);
+  res.redirect("/urls");
+});
+
 
 
 app.listen(PORT, () => {
