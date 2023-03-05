@@ -36,16 +36,12 @@ app.get("/urls/:id", (req, res) => { // show longURL and generated id
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls", (req, res) => { // receives longURL POST request form and redirects to path /urls/:id 
-  console.log(req.body); // Log the POST request body to the console
-  // res.send("OK"); // Respond with 'Ok' (we will replace this)
-  const randomString = generateRandomString();  // implementing the
-  // res.send(randomString);                        // random generator
-  // res.sendStatus(200) // responds statusCode
-  urlDatabase = {
-    [randomString] : req.body.longURL
-  }
-  res.redirect(`/urls/${randomString}`)
+app.post("/urls", (req, res) => { 
+  // console.log(req.body); // to inspect the body/for alt. use morgan 
+  const shortUrl = generateRandomString(); // defined below
+  urlDatabase[shortUrl] = req.body.longURL
+
+  res.redirect(`/urls/${shortUrl}`)
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -56,7 +52,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.get("/u/:id", (req, res) => { // redirect to existing/preset website on urlDatabase
   const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);// express redirecting does not require status code (304)
+  res.redirect(longURL);
 });
 
 app.post("/urls/:id", (req, res) => {
