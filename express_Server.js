@@ -6,7 +6,7 @@ const PORT = 8080; // default port 8080
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
-app.use(morgan("dev"));
+// app.use(morgan("dev"));
 app.set("view engine", "ejs");
 
 let urlDatabase = {
@@ -71,6 +71,11 @@ app.post("/urls/:id", (req, res) => {
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username);
   res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("urls");
 });
 
 
