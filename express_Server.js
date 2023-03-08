@@ -3,16 +3,36 @@ const app = express();
 const morgan = require("morgan");
 const cookieParser = require('cookie-parser')
 const PORT = 8080; // default port 8080
-app.use(express.urlencoded({ extended: true }));
 
+
+// middleware codes
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-// app.use(morgan("dev"));
+app.use(morgan("dev"));
 app.set("view engine", "ejs");
 
+
+// in-server sample-database
 let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
+
+// ROUTES
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -54,6 +74,10 @@ app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   delete urlDatabase[id];
   res.redirect('/urls');
+});
+
+app.get("/register", (req, res) => {
+  res.render("urls_register")
 });
 
 app.get("/u/:id", (req, res) => { // redirect to existing/preset website on urlDatabase
