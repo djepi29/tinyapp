@@ -80,6 +80,26 @@ app.get("/register", (req, res) => {
   res.render("urls_register")
 });
 
+
+
+
+
+app.post("/register", (req, res) => {
+  const userId = generateRandomString();
+  users[userId] = {
+    id: userId,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.cookie("user_id", userId);
+  res.redirect("/urls")
+
+});
+
+
+
+
+
 app.get("/u/:id", (req, res) => { // redirect to existing/preset website on urlDatabase
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
