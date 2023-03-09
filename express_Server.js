@@ -31,6 +31,21 @@ const users = {
   },
 };
 
+// global functions
+const generateRandomString = () => {
+  const generator = Math.random().toString(36).slice(2, 8);
+  return generator;
+} 
+
+function findUserByEmail(users, targetEmail) {
+  for (const userID in users) {
+    const user = users[userID];
+    if (user.email === targetEmail) {
+      return user;
+    }
+  }
+  return null;
+};
 
 // ROUTES
 
@@ -46,7 +61,6 @@ app.get("/urls", (req, res) => { // implementing ejs to render data
     urls: urlDatabase,
     // username: req.cookies["username"]
   };
-  console.log(templateVars)
   res.render("urls_index", templateVars); // req now includes post form
 });
 
@@ -105,24 +119,43 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.get("/login", (req, res) =>{
-
+  res.render("urls_login", {user: null} )
 });
 
 app.get("/register", (req, res) => {
-  res.render("urls_register")
+  res.render("urls_register", {user: null} )
 });
 
 
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  const { email, password } = req.body;
+  const user = findUserByEmail(users, email);
+  if (!user) return res.status(403).send('invalid credentials');
+  if (user.password !== password) {
+    return res.status(403).send('invalid credentials');
+  };
+  res.cookie("user_id", user.id)
   res.redirect("/urls");
 });
 
 
 
+
+
+
+
 app.post("/register", (req, res) => {
-  
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send('email and password required')
+    return;
+  }
+  const foundUser = findUserByEmail(users, req.body.email);
+  if (foundUser) {
+    res.status(400).send('email already taken')
+    return;
+  }
+
   const userId = generateRandomString();
   users[userId] = {
     id: userId,
@@ -137,9 +170,12 @@ app.post("/register", (req, res) => {
 
 
 
+
+
+
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 
@@ -147,8 +183,3 @@ app.post("/logout", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-const generateRandomString = () => {
-  const generator = Math.random().toString(36).slice(2, 8);
-  return generator;
-} 
