@@ -127,16 +127,17 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 
-
+// login page
 app.get("/login", (req, res) =>{
   if (req.cookies.user_id) return res.redirect('/urls');
-  res.render("urls_login", {user: null} )
+  res.render("urls_login", {user: null} );
 });
 
 
-
+// register page
 app.get("/register", (req, res) => {
-  res.render("urls_register", {user: null} )
+  if (req.cookies.user_id) return res.redirect('/urls');
+  res.render("urls_register", {user: null} );
 });
 
 
