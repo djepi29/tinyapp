@@ -1,3 +1,4 @@
+// required dependencies
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
@@ -12,12 +13,15 @@ app.use(morgan("dev"));
 app.set("view engine", "ejs");
 
 
-// in-server sample-database
+// in-server sample-database//////////////////
+
+// URL storage/sorting database
 let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+// user info storage/sorting database
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -31,12 +35,15 @@ const users = {
   },
 };
 
-// global functions
-const generateRandomString = () => {
-  const generator = Math.random().toString(36).slice(2, 8);
+// global functions////////////////////////
+
+// ID generator 
+const generateRandomString = (sliceNumber) => {
+  const generator = Math.random().toString(36).slice(sliceNumber);
   return generator;
 } 
 
+// user search by email 
 function findUserByEmail(users, targetEmail) {
   for (const userID in users) {
     const user = users[userID];
@@ -47,26 +54,28 @@ function findUserByEmail(users, targetEmail) {
   return null;
 };
 
-// ROUTES
+//// ROUTES //////////////////////////////////////
 
+// redirect based on login ? /urls : /login)
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
 
-app.get("/urls", (req, res) => { // implementing ejs to render data
+// renders urls_index / list of urldatabase
+app.get("/urls", (req, res) => { 
   const user = users[req.cookies.user_id];
   const templateVars = { 
     user,
     urls: urlDatabase,
-    // username: req.cookies["username"]
+    
   };
-  res.render("urls_index", templateVars); // req now includes post form
+  res.render("urls_index", templateVars);
 });
 
-
-
-app.get("/urls/new", (req, res) => { // sending form template for POST request 
+// longURL entries page
+app.get("/urls/new", (req, res) => { 
+  if (!req.cookies.user_id) return res.redirect('/login');
   const user = users[req.cookies.user_id];
   const templateVars = { 
     user,
@@ -75,8 +84,8 @@ app.get("/urls/new", (req, res) => { // sending form template for POST request
 });
 
 
-
-app.get("/urls/:id", (req, res) => { // show longURL and generated id
+// longURL and generated id page
+app.get("/urls/:id", (req, res) => { 
   const user = users[req.cookies.user_id];
   const templateVars = { 
     user,
@@ -85,17 +94,17 @@ app.get("/urls/:id", (req, res) => { // show longURL and generated id
 });
 
 
-
-app.get("/u/:id", (req, res) => { // redirect to existing/preset website on urlDatabase
+// shortUrl_id redirect
+app.get("/u/:id", (req, res) => { 
   const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  return longURL ? res.redirect(longURL) : res.status(403).send('ID not found');
 });
 
 
 
 app.post("/urls", (req, res) => { 
-  // console.log(req.body); // to inspect the body/for alt. use morgan 
-  const shortUrl = generateRandomString(); // defined below
+  if (!req.cookies.user_id) return res.send('you must be logged in!');
+  const shortUrl = generateRandomString(); 
   urlDatabase[shortUrl] = req.body.longURL;
 
   res.redirect(`/urls/${shortUrl}`);
@@ -111,36 +120,41 @@ app.post("/urls/:id", (req, res) => {
 });
 
 
-
+// delete ShortUrl id
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   delete urlDatabase[id];
   res.redirect('/urls');
 });
 
+
+// login page
 app.get("/login", (req, res) =>{
-  res.render("urls_login", {user: null} )
+  if (req.cookies.user_id) return res.redirect('/urls');
+  res.render("urls_login", {user: null} );
 });
 
+
+// register page
 app.get("/register", (req, res) => {
-  res.render("urls_register", {user: null} )
+  if (req.cookies.user_id) return res.redirect('/urls');
+  res.render("urls_register", {user: null} );
 });
+
+
 
 
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = findUserByEmail(users, email);
-  if (!user) return res.status(403).send('invalid credentials');
+  if (!user) return res.status(403).send('user not found');
   if (user.password !== password) {
     return res.status(403).send('invalid credentials');
   };
   res.cookie("user_id", user.id)
   res.redirect("/urls");
 });
-
-
-
 
 
 
