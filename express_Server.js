@@ -2,7 +2,8 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 const PORT = 8080; // default port 8080
 
 
@@ -204,18 +205,19 @@ app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.status(400).send('email and password required')
     return;
-  }
+  };
   const foundUser = findUserByEmail(users, req.body.email);
   if (foundUser) {
     res.status(400).send('email already taken')
     return;
-  }
-
+  };
+  const password = req.body.password; // found in the req.body object
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const userId = generateRandomString();
   users[userId] = {
     id: userId,
     email: req.body.email,
-    password: req.body.password
+    password: hashedPassword
   };
 
   res.cookie("user_id", userId);
