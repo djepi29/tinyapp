@@ -75,6 +75,7 @@ app.get("/urls", (req, res) => {
 
 // longURL entries page
 app.get("/urls/new", (req, res) => { 
+  if (!req.cookies.user_id) return res.redirect('/login');
   const user = users[req.cookies.user_id];
   const templateVars = { 
     user,
@@ -94,16 +95,16 @@ app.get("/urls/:id", (req, res) => {
 
 
 
-app.get("/u/:id", (req, res) => { // redirect to existing/preset website on urlDatabase
+app.get("/u/:id", (req, res) => { 
   const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  return longURL ? res.redirect(longURL) : res.status(403).send('ID not found');
 });
 
 
 
 app.post("/urls", (req, res) => { 
-  // console.log(req.body); // to inspect the body/for alt. use morgan 
-  const shortUrl = generateRandomString(); // defined below
+  if (!req.cookies.user_id) return res.send('you must be logged in!');
+  const shortUrl = generateRandomString(); 
   urlDatabase[shortUrl] = req.body.longURL;
 
   res.redirect(`/urls/${shortUrl}`);
