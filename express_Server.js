@@ -110,6 +110,10 @@ app.get("/urls/new", (req, res) => {
 // longURL and generated id page
 app.get("/urls/:id", (req, res) => { 
   const user = users[req.cookies.user_id];
+  if (!user) return res.send('you must be logged in!');
+  if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+    return res.send("invalid ID request!");
+  };
   const templateVars = { 
     user,
   };
