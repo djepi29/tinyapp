@@ -16,9 +16,19 @@ app.set("view engine", "ejs");
 // in-server sample-database//////////////////
 
 // URL storage/sorting database
-let urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+// let urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+const urlDatabase = {
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 // user info storage/sorting database
@@ -96,7 +106,7 @@ app.get("/urls/:id", (req, res) => {
 
 
 app.get("/u/:id", (req, res) => { 
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
   return longURL ? res.redirect(longURL) : res.status(403).send('ID not found');
 });
 
@@ -105,7 +115,7 @@ app.get("/u/:id", (req, res) => {
 app.post("/urls", (req, res) => { 
   if (!req.cookies.user_id) return res.send('you must be logged in!');
   const shortUrl = generateRandomString(); 
-  urlDatabase[shortUrl] = req.body.longURL;
+  urlDatabase[shortUrl].longURL = req.body.longURL;
 
   res.redirect(`/urls/${shortUrl}`);
 });
@@ -115,7 +125,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   let updatedUrl = req.body.longURL;
-  urlDatabase[id] = updatedUrl;
+  urlDatabase[id].longURL = updatedUrl;
   res.redirect("/urls");
 });
 
