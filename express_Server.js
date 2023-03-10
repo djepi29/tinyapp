@@ -27,7 +27,7 @@ const urlDatabase = {
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW",
+    userID: "userRandomID",
   },
 };
 
@@ -51,7 +51,7 @@ const users = {
 const generateRandomString = (sliceNumber) => {
   const generator = Math.random().toString(36).slice(sliceNumber);
   return generator;
-} 
+}
 
 // user search by email 
 function findUserByEmail(users, targetEmail) {
@@ -65,7 +65,7 @@ function findUserByEmail(users, targetEmail) {
 };
 
 // urls list of user
-const urlsForUser = function(id) {
+const urlsForUser = function (id) {
   const userUrls = {};
   for (let shortUrl in urlDatabase) {
     if (urlDatabase[shortUrl].userID === id) {
@@ -84,23 +84,23 @@ app.get("/", (req, res) => {
 
 
 // renders urls_index / list of urldatabase
-app.get("/urls", (req, res) => { 
+app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id];
   if (!user) return res.send('you must be logged in!');
-  const userDatabase = urlsForUser(req.cookies.user_id)
-  const templateVars = { 
+  const userUrls = urlsForUser(req.cookies.user_id)
+  const templateVars = {
     user,
-    urls: userDatabase,
-    
+    urls: userUrls,
+
   };
   res.render("urls_index", templateVars);
 });
 
 // longURL entries page
-app.get("/urls/new", (req, res) => { 
+app.get("/urls/new", (req, res) => {
   if (!req.cookies.user_id) return res.redirect('/login');
   const user = users[req.cookies.user_id];
-  const templateVars = { 
+  const templateVars = {
     user,
   };
   res.render("urls_new", templateVars);
@@ -108,30 +108,32 @@ app.get("/urls/new", (req, res) => {
 
 
 // longURL and generated id page
-app.get("/urls/:id", (req, res) => { 
+app.get("/urls/:id", (req, res) => {
   const user = users[req.cookies.user_id];
   if (!user) return res.send('you must be logged in!');
   if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
     return res.send("invalid ID request!");
   };
-  const templateVars = { 
+  const templateVars = {
     user,
+    longURL: urlDatabase[req.params.id].longURL,
+    id: req.params.id
   };
   res.render("urls_show", templateVars);
 });
 
 
 
-app.get("/u/:id", (req, res) => { 
+app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id].longURL;
   return longURL ? res.redirect(longURL) : res.status(403).send('ID not found');
 });
 
 
 
-app.post("/urls", (req, res) => { 
+app.post("/urls", (req, res) => {
   if (!req.cookies.user_id) return res.send('you must be logged in!');
-  const shortUrl = generateRandomString(); 
+  const shortUrl = generateRandomString();
   urlDatabase[shortUrl].longURL = req.body.longURL;
 
   res.redirect(`/urls/${shortUrl}`);
@@ -140,7 +142,13 @@ app.post("/urls", (req, res) => {
 
 
 app.post("/urls/:id", (req, res) => {
+  const user = users[req.cookies.user_id];
+  if (!user) return res.send('you must be logged in!');
   const id = req.params.id;
+  if (!urlDatabase[id]) return res.send("ID does not exist");
+  if (urlDatabase[id].userID !== req.cookies.user_id) {
+    return res.send("invalid ID request!");
+  };
   let updatedUrl = req.body.longURL;
   urlDatabase[id].longURL = updatedUrl;
   res.redirect("/urls");
@@ -149,23 +157,29 @@ app.post("/urls/:id", (req, res) => {
 
 
 app.post("/urls/:id/delete", (req, res) => {
+  const user = users[req.cookies.user_id];
+  if (!user) return res.send('you must be logged in!');
   const id = req.params.id;
+  if (!urlDatabase[id]) return res.send("ID does not exist");
+  if (urlDatabase[id].userID !== req.cookies.user_id) {
+    return res.send("invalid ID request!");
+  };
   delete urlDatabase[id];
   res.redirect('/urls');
 });
 
 
 // login page
-app.get("/login", (req, res) =>{
+app.get("/login", (req, res) => {
   if (req.cookies.user_id) return res.redirect('/urls');
-  res.render("urls_login", {user: null} );
+  res.render("urls_login", { user: null });
 });
 
 
 // register page
 app.get("/register", (req, res) => {
   if (req.cookies.user_id) return res.redirect('/urls');
-  res.render("urls_register", {user: null} );
+  res.render("urls_register", { user: null });
 });
 
 
@@ -203,7 +217,7 @@ app.post("/register", (req, res) => {
     email: req.body.email,
     password: req.body.password
   };
-  
+
   res.cookie("user_id", userId);
   res.redirect("/urls")
 
