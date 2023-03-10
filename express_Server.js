@@ -64,6 +64,17 @@ function findUserByEmail(users, targetEmail) {
   return null;
 };
 
+// urls list of user
+const urlsForUser = function(id) {
+  const userUrls = {};
+  for (let shortUrl in urlDatabase) {
+    if (urlDatabase[shortUrl].userID === id) {
+      userUrls[shortUrl] = urlDatabase[shortUrl];
+    }
+  }
+  return userUrls;
+};
+
 //// ROUTES //////////////////////////////////////
 
 // redirect based on login ? /urls : /login)
@@ -75,9 +86,11 @@ app.get("/", (req, res) => {
 // renders urls_index / list of urldatabase
 app.get("/urls", (req, res) => { 
   const user = users[req.cookies.user_id];
+  if (!user) return res.send('you must be logged in!');
+  const userDatabase = urlsForUser(req.cookies.user_id)
   const templateVars = { 
     user,
-    urls: urlDatabase,
+    urls: userDatabase,
     
   };
   res.render("urls_index", templateVars);
