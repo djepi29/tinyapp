@@ -1,11 +1,12 @@
-// required dependencies & functions
+// required dependencies
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
 const cookieSession = require("cookie-session")
 const bcrypt = require("bcryptjs");
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
 const PORT = 8080; // default port 8080
+// required funcitons
 const { generateRandomString, findUserByEmail } = require("./helpers");
 
 
@@ -256,10 +257,7 @@ app.post("/register", (req, res) => {
 });
 
 
-
-
-
-
+// logout route
 app.post("/logout", (req, res) => {
   // res.clearCookie("user_id");
   req.session = null;

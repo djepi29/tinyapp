@@ -1,5 +1,6 @@
 // ID generator 
 const generateRandomString = (sliceNumber) => {
+  if (!Number.isInteger(sliceNumber)) return undefined;
   const generator = Math.random().toString(36).slice(sliceNumber);
   return generator;
 }
