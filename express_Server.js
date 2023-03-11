@@ -1,4 +1,4 @@
-// required dependencies
+// required dependencies & functions
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
@@ -6,6 +6,7 @@ const cookieSession = require("cookie-session")
 const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 const PORT = 8080; // default port 8080
+const { generateRandomString, findUserByEmail } = require("./helpers");
 
 
 // middleware codes
@@ -57,22 +58,23 @@ const users = {
 
 // global functions////////////////////////
 
+
 // ID generator 
-const generateRandomString = (sliceNumber) => {
-  const generator = Math.random().toString(36).slice(sliceNumber);
-  return generator;
-}
+// const generateRandomString = (sliceNumber) => {
+//   const generator = Math.random().toString(36).slice(sliceNumber);
+//   return generator;
+// }
 
 // user search by email 
-function findUserByEmail(users, targetEmail) {
-  for (const userID in users) {
-    const user = users[userID];
-    if (user.email === targetEmail) {
-      return user;
-    }
-  }
-  return null;
-};
+// function findUserByEmail(users, targetEmail) {
+//   for (const userID in users) {
+//     const user = users[userID];
+//     if (user.email === targetEmail) {
+//       return user;
+//     }
+//   }
+//   return null;
+// };
 
 // urls list of user
 const urlsForUser = function (id) {
@@ -207,7 +209,7 @@ app.get("/register", (req, res) => {
 
 
 
-
+// urls_login 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   // console.log( { email, password } )
