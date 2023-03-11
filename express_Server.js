@@ -86,6 +86,7 @@ app.get("/", (req, res) => {
 
 // renders urls_index / list of urldatabase
 app.get("/urls", (req, res) => {
+  console.log(users);
   const user = users[req.cookies.user_id];
   if (!user) return res.send('you must be logged in!');
   const userUrls = urlsForUser(req.cookies.user_id)
@@ -189,9 +190,11 @@ app.get("/register", (req, res) => {
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
+  // console.log( { email, password } )
   const user = findUserByEmail(users, email);
   if (!user) return res.status(403).send('user not found');
-  if (user.password !== password) {
+  const passwordCheck = bcrypt.compareSync(user.password, password);
+  if (passwordCheck === true) {
     return res.status(403).send('invalid credentials');
   };
   res.cookie("user_id", user.id)
