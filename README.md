@@ -6,13 +6,29 @@
 
 **_BEWARE:_ This project is for learning purposes. It is _not_ intended for use in production-grade software.**
 
+
+###### To Build a simple multipage app:
+
+* with authentication protection
+* that reacts appropriately to the user's logged-in state,
+* and permits the user to create, read, update, and delete (CRUD) a simple entity (e.g. blog posts, URL shortener).
+
 > This project was created and published by [me](https://github.com/djepi29)
 >  with help of the [LighthouseLabs](https://www.lighthouselabs.ca/) mentors. 
 >  as part of my learning journey. 
 
-## Usage
+## Dependencies
 
-> default port: 8080
+- Node.js
+- Express
+- EJS
+- bcryptjs
+- cookie-session
+
+## Getting Started
+
+- Install all dependencies (using the `npm install` command).
+- Run the development web server using the `node express_server.js` command.
 
 ## Documentation
 
