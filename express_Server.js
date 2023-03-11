@@ -113,7 +113,8 @@ app.get("/urls", (req, res) => {
 
 // longURL entries page
 app.get("/urls/new", (req, res) => {
-  if (!req.cookies.user_id) return res.redirect('/login');
+  //       .cookies
+  if (!req.session.user_id) return res.redirect('/login');
   //                     .cookies
   const user = users[req.session.user_id];
   const templateVars = {
@@ -128,7 +129,8 @@ app.get("/urls/:id", (req, res) => {
   //                     .cookies
   const user = users[req.session.user_id];
   if (!user) return res.send('you must be logged in!');
-  if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+  //                                           .cookies
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     return res.send("invalid ID request!");
   };
   const templateVars = {
@@ -182,7 +184,8 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!user) return res.send('you must be logged in!');
   const id = req.params.id;
   if (!urlDatabase[id]) return res.send("ID does not exist");
-  if (urlDatabase[id].userID !== req.cookies.user_id) {
+  //                                 .cookies
+  if (urlDatabase[id].userID !== req.session.user_id) {
     return res.send("invalid ID request!");
   };
   delete urlDatabase[id];
