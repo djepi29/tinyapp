@@ -2,16 +2,25 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
-const cookieParser = require('cookie-parser');
+const cookieSession = require("cookie-session")
 const bcrypt = require("bcryptjs");
+const cookieParser = require("cookie-parser");
 const PORT = 8080; // default port 8080
 
 
 // middleware codes
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(morgan("dev"));
 app.set("view engine", "ejs");
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2'],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 
 // in-server sample-database//////////////////
@@ -86,10 +95,12 @@ app.get("/", (req, res) => {
 
 // renders urls_index / list of urldatabase
 app.get("/urls", (req, res) => {
-  console.log(users);
-  const user = users[req.cookies.user_id];
+  // console.log(users);
+  //                     .cookies
+  const user = users[req.session.user_id];
   if (!user) return res.send('you must be logged in!');
-  const userUrls = urlsForUser(req.cookies.user_id)
+  //                               .cookies
+  const userUrls = urlsForUser(req.session.user_id)
   const templateVars = {
     user,
     urls: userUrls,
@@ -101,7 +112,8 @@ app.get("/urls", (req, res) => {
 // longURL entries page
 app.get("/urls/new", (req, res) => {
   if (!req.cookies.user_id) return res.redirect('/login');
-  const user = users[req.cookies.user_id];
+  //                     .cookies
+  const user = users[req.session.user_id];
   const templateVars = {
     user,
   };
@@ -111,7 +123,8 @@ app.get("/urls/new", (req, res) => {
 
 // longURL and generated id page
 app.get("/urls/:id", (req, res) => {
-  const user = users[req.cookies.user_id];
+  //                     .cookies
+  const user = users[req.session.user_id];
   if (!user) return res.send('you must be logged in!');
   if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
     return res.send("invalid ID request!");
@@ -134,7 +147,8 @@ app.get("/u/:id", (req, res) => {
 
 
 app.post("/urls", (req, res) => {
-  if (!req.cookies.user_id) return res.send('you must be logged in!');
+  //       .cookies
+  if (!req.session.user_id) return res.send('you must be logged in!');
   const shortUrl = generateRandomString();
   urlDatabase[shortUrl].longURL = req.body.longURL;
 
@@ -144,11 +158,13 @@ app.post("/urls", (req, res) => {
 
 
 app.post("/urls/:id", (req, res) => {
-  const user = users[req.cookies.user_id];
+  //                     .cookies
+  const user = users[req.session.user_id];
   if (!user) return res.send('you must be logged in!');
   const id = req.params.id;
   if (!urlDatabase[id]) return res.send("ID does not exist");
-  if (urlDatabase[id].userID !== req.cookies.user_id) {
+  //                                 .cookie
+  if (urlDatabase[id].userID !== req.session.user_id) {
     return res.send("invalid ID request!");
   };
   let updatedUrl = req.body.longURL;
@@ -159,7 +175,8 @@ app.post("/urls/:id", (req, res) => {
 
 // delete ShortUrl id
 app.post("/urls/:id/delete", (req, res) => {
-  const user = users[req.cookies.user_id];
+  //                     .cookie
+  const user = users[req.session.user_id];
   if (!user) return res.send('you must be logged in!');
   const id = req.params.id;
   if (!urlDatabase[id]) return res.send("ID does not exist");
@@ -173,14 +190,17 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // login page
 app.get("/login", (req, res) => {
-  if (req.cookies.user_id) return res.redirect('/urls');
+  //      .cookie
+  if (req.session.user_id) return res.redirect('/urls');
   res.render("urls_login", { user: null });
 });
 
 
 // register page
 app.get("/register", (req, res) => {
-  if (req.cookies.user_id) return res.redirect('/urls');
+  //      .cookie
+  if (req.session.user_id) return res.redirect('/urls');
+  // if (req.cookie.user_id) return res.redirect('/urls');
   res.render("urls_register", { user: null });
 });
 
@@ -197,7 +217,8 @@ app.post("/login", (req, res) => {
   if (passwordCheck === true) {
     return res.status(403).send('invalid credentials');
   };
-  res.cookie("user_id", user.id)
+  // res.cookie("user_id", user.id);
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
@@ -223,7 +244,8 @@ app.post("/register", (req, res) => {
     password: hashedPassword
   };
 
-  res.cookie("user_id", userId);
+  // res.cookie("user_id", userId);
+  req.session.user_id = userId;
   res.redirect("/urls")
 
 });
@@ -234,7 +256,8 @@ app.post("/register", (req, res) => {
 
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  // res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 });
 
