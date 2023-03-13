@@ -82,7 +82,7 @@ app.get("/u/:id", (req, res) => {
 app.post("/urls", (req, res) => {
   //       .cookies
   if (!req.session.user_id) return res.send('you must be logged in!');
-  const shortUrl = generateRandomString();
+  const shortUrl = generateRandomString(6);
   urlDatabase[shortUrl] = {
     longURL: req.body.longURL,
     userID: req.session.user_id
@@ -163,7 +163,7 @@ app.post("/register", (req, res) => {
   }
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
-  const userId = generateRandomString();
+  const userId = generateRandomString(10);
   users[userId] = {
     id: userId,
     email: req.body.email,
