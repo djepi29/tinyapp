@@ -1,10 +1,9 @@
-// in-server sample-database//////////////////
+///// DEPENDENCIES/////////////////////
 
-// URL storage/sorting database
-// let urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
+const bcrypt = require("bcryptjs");
+
+///////////URL DATABASE //////////////////
+
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -16,8 +15,7 @@ const urlDatabase = {
   },
 };
 
-// user info storage/sorting database
-const bcrypt = require("bcryptjs");
+///////////////// USER DATABASE ////////////////////////
 
 const users = {
   userRandomID: {
