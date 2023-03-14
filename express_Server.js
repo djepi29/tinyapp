@@ -36,7 +36,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   //                     .cookies
   const user = users[req.session.user_id];
-  if (!user) return res.send('you must be logged in!');
+  if (!user) return res.status(404).send('you must be logged in!');
   //                               .cookies
   const userUrls = urlsForUser(urlDatabase, req.session.user_id);
   const templateVars = {
@@ -61,10 +61,10 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   //                     .cookies
   const user = users[req.session.user_id];
-  if (!user) return res.send('you must be logged in!');
+  if (!user) return res.status(404).send('you must be logged in!');
   //                                           .cookies
   if (urlDatabase[req.params.id].userID !== req.session.user_id) {
-    return res.send("invalid ID request!");
+    return res.status(404).send("invalid ID request!");
   }
   const templateVars = {
     user,
@@ -75,13 +75,19 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
+  const {id} = req.params;
+  console.log("the id:", id);
+  console.log(urlDatabase);
+  if (!urlDatabase[id]) {
+    return res.status(404).send("Url not found")
+  }
   const longURL = urlDatabase[req.params.id].longURL;
-  return longURL ? res.redirect(longURL) : res.status(403).send('ID not found');
+  return longURL ? res.redirect(longURL) : res.status(404).send('ID not found');
 });
 
 app.post("/urls", (req, res) => {
   //       .cookies
-  if (!req.session.user_id) return res.send('you must be logged in!');
+  if (!req.session.user_id) return res.status(404).send('you must be logged in!');
   const shortUrl = generateRandomString(6);
   urlDatabase[shortUrl] = {
     longURL: req.body.longURL,
@@ -94,12 +100,12 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   //                     .cookies
   const user = users[req.session.user_id];
-  if (!user) return res.send('you must be logged in!');
+  if (!user) return res.status(404).send('you must be logged in!');
   const id = req.params.id;
-  if (!urlDatabase[id]) return res.send("ID does not exist");
+  if (!urlDatabase[id]) return res.status(404).send("ID does not exist");
   //                                 .cookie
   if (urlDatabase[id].userID !== req.session.user_id) {
-    return res.send("invalid ID request!");
+    return res.status(404).send("invalid ID request!");
   }
   let updatedUrl = req.body.longURL;
   urlDatabase[id].longURL = updatedUrl;
@@ -109,12 +115,12 @@ app.post("/urls/:id", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   //                     .cookie
   const user = users[req.session.user_id];
-  if (!user) return res.send('you must be logged in!');
+  if (!user) return res.status(404).send('you must be logged in!');
   const id = req.params.id;
-  if (!urlDatabase[id]) return res.send("ID does not exist");
+  if (!urlDatabase[id]) return res.status(404).send("ID does not exist");
   //                                 .cookies
   if (urlDatabase[id].userID !== req.session.user_id) {
-    return res.send("invalid ID request!");
+    return res.status(404).send("invalid ID request!");
   }
   delete urlDatabase[id];
   res.redirect('/urls');
@@ -139,11 +145,9 @@ app.get("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = findUserByEmail(users, email);
-  if (!user) return res.status(403).send('user not found');
-  const passwordCheck = bcrypt.compareSync(user.password, password);
-  if (passwordCheck === true) {
-    return res.status(403).send('invalid credentials');
-  }
+  if (!user) return res.status(404).send('user not found');
+  const passwordCheck = bcrypt.compareSync(password, user.password);
+  if (!passwordCheck) return res.status(404).send('invalid credentials');
   req.session.user_id = user.id;
   res.redirect("/urls");
 });
@@ -153,12 +157,12 @@ app.post("/login", (req, res) => {
 
 app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
-    res.status(400).send('email and password required');
+    res.status(404).send('email and password required');
     return;
   }
   const foundUser = findUserByEmail(users, req.body.email);
   if (foundUser) {
-    res.status(400).send('email already taken');
+    res.status(404).send('email already taken');
     return;
   }
   const password = req.body.password;
