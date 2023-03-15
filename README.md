@@ -17,6 +17,10 @@
 >  with help of the [LighthouseLabs](https://www.lighthouselabs.ca/) mentors. 
 >  as part of my learning journey. 
 
+## Final Product
+
+!["login screenshot"](./TinyApp.png)
+
 ## Dependencies
 
 - Node.js
